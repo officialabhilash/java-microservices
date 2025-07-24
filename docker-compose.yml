@@ -1,4 +1,43 @@
+networks:
+  app-network:
+    driver: bridge
+
+
 services:
+
+  # CAUTION: THE USER SERVICE IS CORRECTLY DEFINED HERE BUT MUTED FOR NOW
+#  user:
+#    image: user-dev:latest
+#    build:
+#      context: ./user-microservice
+#      dockerfile: ./Dockerfile
+#      target: dev
+#    tty: true
+#    container_name: user_backend
+#    restart: always
+#    volumes:
+#      - "./user-microservice/src/:/src"
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    networks:
+#      - app-network
+#    ports:
+#      - "8080:8080"
+#      - "50050:50050"
+
+#  quartz:
+#    image: quartz-dev:latest
+#    build:
+#      context: ./quartz-microservice
+#      dockerfile: ./Dockerfile
+#      target: dev
+#    tty: true
+#    container_name: quartz_backend
+#    restart: always
+#    volumes:
+#      - "./quartz-microservice/src/:/src"
+
   db:
     image: postgres:16
     container_name: postgres_db
@@ -12,6 +51,13 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: application
     restart: always
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d application"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: apache/kafka:latest
@@ -36,3 +82,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     restart: always
+    networks:
+      - app-network
+
