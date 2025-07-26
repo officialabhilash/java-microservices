@@ -6,37 +6,37 @@ networks:
 services:
 
   # CAUTION: THE USER SERVICE IS CORRECTLY DEFINED HERE BUT MUTED FOR NOW
-#  user:
-#    image: user-dev:latest
-#    build:
-#      context: ./user-microservice
-#      dockerfile: ./Dockerfile
-#      target: dev
-#    tty: true
-#    container_name: user_backend
-#    restart: always
-#    volumes:
-#      - "./user-microservice/src/:/src"
-#    depends_on:
-#      db:
-#        condition: service_healthy
-#    networks:
-#      - app-network
-#    ports:
-#      - "8080:8080"
-#      - "50050:50050"
+  #  user:
+  #    image: user-dev:latest
+  #    build:
+  #      context: ./user-microservice
+  #      dockerfile: ./Dockerfile
+  #      target: dev
+  #    tty: true
+  #    container_name: user_backend
+  #    restart: always
+  #    volumes:
+  #      - "./user-microservice/src/:/src"
+  #    depends_on:
+  #      db:
+  #        condition: service_healthy
+  #    networks:
+  #      - app-network
+  #    ports:
+  #      - "8080:8080"
+  #      - "50050:50050"
 
-#  quartz:
-#    image: quartz-dev:latest
-#    build:
-#      context: ./quartz-microservice
-#      dockerfile: ./Dockerfile
-#      target: dev
-#    tty: true
-#    container_name: quartz_backend
-#    restart: always
-#    volumes:
-#      - "./quartz-microservice/src/:/src"
+  #  quartz:
+  #    image: quartz-dev:latest
+  #    build:
+  #      context: ./quartz-microservice
+  #      dockerfile: ./Dockerfile
+  #      target: dev
+  #    tty: true
+  #    container_name: quartz_backend
+  #    restart: always
+  #    volumes:
+  #      - "./quartz-microservice/src/:/src"
 
   db:
     image: postgres:16
@@ -54,7 +54,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d application"]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d application" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -85,3 +85,16 @@ services:
     networks:
       - app-network
 
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:latest
+    container_name: rest_proxy
+    restart: always
+    ports:
+      - "4040:4040"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka:9092
+      KAFKA_REST_LISTENERS: http://0.0.0.0:4040
+    networks:
+      - app-network
