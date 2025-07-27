@@ -67,6 +67,7 @@ services:
       - "29092:29092"
     volumes:
       - .data/kafka:/var/lib/kafka/data
+      - ./tools/kafka/kafka_init_script.sh:/kafka_init_script.sh
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
@@ -82,6 +83,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9092"]
+      interval: 10s
+      timeout: 4s
+      retries: 5
     networks:
       - app-network
 
